@@ -1,9 +1,5 @@
 import { TDBConstructor } from "../types/TDBConstructor";
 
-// TODO: update
-// TODO: delete
-// TODO: where
-
 export class Database<TInterfacedModel, TModel extends TInterfacedModel & { id?: number }> {
   /**
    * Current database index.
@@ -16,6 +12,14 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & { id?:
    */
   public constructor(private modelDefinition: TDBConstructor<TInterfacedModel, TModel>) {
     //
+  }
+
+  public static delete(): void {
+    throw new Error(`Method not implemented`);
+  }
+
+  public static update() {
+    throw new Error(`Method not implemented`);
   }
 
   /**
@@ -61,4 +65,12 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & { id?:
    */
   public last = (): TModel =>
     new this.modelDefinition([...this.records.values()][this.autoincrement - 1]);
+
+  public update = (): void => {
+    throw new Error(`Method not implemented`);
+  };
+
+  public where = (): TModel[] => {
+    throw new Error(`Method not implemented`);
+  };
 }
