@@ -1,0 +1,16 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./src"
+    }
+  ],
+  "include": ["src"],
+  "exclude": ["test"],
+  "compilerOptions": {
+    "paths": {
+      "*": ["./node_modules/*"]
+    },
+    "moduleResolution": "Node"
+  }
+}

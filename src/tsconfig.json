@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig-base.json",
+  "include": ["**/*", "**/*.json"],
+  "exclude": ["tsconfig.json"],
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "outDir": "../dist",
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}

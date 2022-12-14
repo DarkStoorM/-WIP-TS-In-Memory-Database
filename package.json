@@ -1,0 +1,43 @@
+{
+  "name": "inmemorydb",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "coverage-ff": "start firefox \"%cd%\\coverage\\lcov-report\\index.html\"",
+    "coverage-chrome": "start chrome \"%cd%\\coverage\\lcov-report\\index.html\"",
+    "src:build": "tsc -b src",
+    "src:fix": "concurrently \"npm run src:format\" \"npm run src:lint\" \"npm run src:lint-test\" \"npm run src:build\" --max-processes 1",
+    "src:format": "prettier --write \"**/*.+(js|jsx|ts|tsx)\"",
+    "src:lint-test": "eslint --fix \"test/**\"",
+    "src:lint": "eslint --fix \"src/**\"",
+    "start": "node dist/app.js",
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DarkStoorM/In-Memory-DB.git"
+  },
+  "keywords": [],
+  "author": "DarkStoorM",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DarkStoorM/In-Memory-DB/issues"
+  },
+  "homepage": "https://github.com/DarkStoorM/In-Memory-DB#readme",
+  "devDependencies": {
+    "@faker-js/faker": "^7.3.0",
+    "@typescript-eslint/eslint-plugin": "^5.30.0",
+    "@typescript-eslint/parser": "^5.30.0",
+    "@vitest/coverage-istanbul": "^0.25.8",
+    "concurrently": "^7.2.2",
+    "eslint": "^8.18.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "prettier": "^2.7.1",
+    "typescript": "^4.7.4",
+    "vite": "^3.2.3",
+    "vitest": "^0.25.2"
+  }
+}
