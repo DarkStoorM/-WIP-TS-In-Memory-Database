@@ -1,5 +1,9 @@
 import { TDBConstructor } from "../types/TDBConstructor";
 
+// TODO: update
+// TODO: delete
+// TODO: where
+
 export class Database<TInterfacedModel, TModel extends TInterfacedModel & { id?: number }> {
   /**
    * Current database index.
@@ -55,5 +59,6 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & { id?:
   /**
    * Returns the last model from this database)
    */
-  public last = (): TModel => new this.modelDefinition([...this.records.values()][this.autoincrement - 1]);
+  public last = (): TModel =>
+    new this.modelDefinition([...this.records.values()][this.autoincrement - 1]);
 }
