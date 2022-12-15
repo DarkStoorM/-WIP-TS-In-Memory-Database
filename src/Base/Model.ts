@@ -1,10 +1,12 @@
+import { TIndexedModel } from "../types/TIndexedModel";
+
 export abstract class Model<TInterfacedModel> {
   public readonly id?: number;
 
   /**
    * @param   {TInterfacedModel}  definition  Model definition to create properties from
    */
-  public constructor(definition: TInterfacedModel & { id?: number }) {
+  public constructor(definition: TInterfacedModel & TIndexedModel) {
     this.id = definition.id;
 
     // Drop the id requirement
