@@ -1,5 +1,8 @@
 import { TIndexedModel } from "../types/TIndexedModel";
 
+/**
+ * @template TInterfacedModel Interface implemented by custom Models
+ */
 export abstract class Model<TInterfacedModel> {
   public readonly id?: number;
 
