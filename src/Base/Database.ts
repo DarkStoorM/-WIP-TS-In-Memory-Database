@@ -49,19 +49,27 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   public count = (): number => this.records.size;
 
   /**
-   * Deletes all filtered models from the Database
+   * Deletes all filtered models from the Database.
+   *
+   * @returns Removed records count
    */
-  public delete = (): void => {
+  public delete = (): number => {
     const iterator = this.lastQuery.entries();
     let result = iterator.next();
+    let recordsRemoved = 0;
 
     while (!result.done) {
-      this.records.delete(result.value[0]);
+      // Delete the matching record with the internal id
+      if (this.records.delete(result.value[0])) {
+        recordsRemoved++;
+      }
 
       result = iterator.next();
     }
 
     this.lastQuery.clear();
+
+    return recordsRemoved;
   };
 
   /**
