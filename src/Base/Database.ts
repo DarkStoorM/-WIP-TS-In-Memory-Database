@@ -1,6 +1,12 @@
 import { TDBConstructor } from "../types/TDBConstructor";
 import { TIndexedModel } from "../types/TIndexedModel";
 
+/**
+ * @template TInterfacedModel Model Interface to derive the keys from. Interfaces should not contain
+ *                            `id` property as it's implicitly appended by Base Model and the
+ *                            Database class
+ * @template TModel           Custom Model Class used for return types
+ */
 export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndexedModel> {
   /**
    * Current database index.
@@ -16,7 +22,8 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   public lastQuery: Map<number, TInterfacedModel> = new Map();
 
   /**
-   * @param   {TDBConstructor<TInterfacedModel>}  modelDefinition   Custom Model class used as a template for model definition instantiation
+   * @param   {TDBConstructor<TInterfacedModel>}  modelDefinition   Custom Model class used as a
+   * template for model definition instantiation
    */
   public constructor(private modelDefinition: TDBConstructor<TInterfacedModel, TModel>) {
     //
@@ -43,9 +50,14 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
 
   /**
    * Returns the first model from this database
+   *
+   * When `retrieveFromLastQuery` is set to true, will return the queried models instead.
+   *
+   * @param   {boolean}  retrieveFromLastQuery  Allows retrieving models from query scopes (Where
+   * Clause)
    */
-  public first = (): TModel | undefined => {
-    const firstModel = this.records.entries().next();
+  public first = (retrieveFromLastQuery = true): TModel | undefined => {
+    const firstModel = this.switchRecordsRetrieval(retrieveFromLastQuery).entries().next();
 
     // Database can be empty, so we can just return undefined
     if (!firstModel.value) {
@@ -57,7 +69,8 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   };
 
   /**
-   * Executes the selected models instantiation and returns them as an array of those models (or empty)
+   * Executes the selected models instantiation and returns them as an array of those models (or
+   * empty)
    */
   public get = (): TModel[] => {
     const models: TModel[] = [];
@@ -74,10 +87,12 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   };
 
   /**
-   * Inserts the given model definition into the database and returns a new instance of this model based on the
+   * Inserts the given model definition into the database and returns a new instance of this model
+   * based on the
    * given definition when prompted
    *
-   * @param   {TInterfacedModel}  definition  Model definition later used to instantiate the new model with
+   * @param   {TInterfacedModel}  definition  Model definition later used to instantiate the new
+   * model with
    */
   public insert = (definition: TInterfacedModel, returnNew = false): TModel | void => {
     const template = { id: this.autoincrement };
@@ -89,10 +104,15 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   };
 
   /**
-   * Returns the last model from this database
+   * Returns the last model from this database.
+   *
+   * When `retrieveFromLastQuery` is set to true, will return the queried models instead.
+   *
+   * @param   {boolean}  retrieveFromLastQuery  Allows retrieving models from query scopes (Where
+   * Clause)
    */
-  public last = (): TModel | undefined => {
-    const lastModel = this.records.get(this.autoincrement);
+  public last = (retrieveFromLastQuery = true): TModel | undefined => {
+    const lastModel = this.switchRecordsRetrieval(retrieveFromLastQuery).get(this.autoincrement);
 
     // Database can be empty, so we can just return undefined
     if (!lastModel) {
@@ -130,18 +150,19 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
 
       result.value[1][where] = value;
 
-      // Necessary cast as we are in a non-nullable context
+      // Necessary cast as we are in a non-nullable context, so we have to match the inferred type
       dbModel[where] = value as NonNullable<TInterfacedModel>[Key];
 
       result = iterator.next();
     }
 
+    // Return for chaining
     return this;
   };
 
   /**
-   * Filters the currently held records by provided filter: column -> value and stores them in the recently used
-   * query, appending the results - overridden by shared filtering clauses.
+   * Filters the currently held records by provided filter: column -> value and stores them in the
+   * recently used query, appending the results - overridden by shared filtering clauses.
    *
    * The results can be retrieved with `.get()` as a final call.
    *
@@ -152,8 +173,8 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   public where = <Key extends keyof TInterfacedModel | keyof TIndexedModel>(
     /* The type intersection is required to expose the optional `id` property */
     whereColumn: keyof Pick<TInterfacedModel & TIndexedModel, Key>,
-    /* The Required<> type intersection is required to satisfy the `Key`'s constraints and to force the actual type
-       for that argument, since the intersected property is optional */
+    /* The Required<> type intersection is required to satisfy the `Key`'s constraints and to force 
+       the actual type for that argument, since the intersected property is optional */
     value: (TInterfacedModel & Required<TIndexedModel>)[Key]
   ): this => {
     const iterator = this.records.entries();
@@ -169,6 +190,17 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
       result = iterator.next();
     }
 
+    // Return for chaining
     return this;
+  };
+
+  /**
+   * Switches the internal Map where the records should be retrieved from.
+   *
+   * @param   {boolean}  state  `true` returns `lastQuery` (filtered models), `false` returns
+   * Database records
+   */
+  private switchRecordsRetrieval = (state: boolean): Map<number, TInterfacedModel> => {
+    return state ? this.lastQuery : this.records;
   };
 }
