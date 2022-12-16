@@ -49,6 +49,22 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   public count = (): number => this.records.size;
 
   /**
+   * Deletes all filtered models from the Database
+   */
+  public delete = (): void => {
+    const iterator = this.lastQuery.entries();
+    let result = iterator.next();
+
+    while (!result.done) {
+      this.records.delete(result.value[0]);
+
+      result = iterator.next();
+    }
+
+    this.lastQuery.clear();
+  };
+
+  /**
    * Returns the first model from this database
    *
    * When `retrieveFromLastQuery` is set to false, will return the database models instead.
