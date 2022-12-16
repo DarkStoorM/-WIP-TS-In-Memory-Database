@@ -22,10 +22,6 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
     //
   }
 
-  public static update() {
-    throw new Error(`Method not implemented`);
-  }
-
   /**
    * Returns all models from this database
    */
@@ -106,8 +102,41 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
     return new this.modelDefinition(lastModel);
   };
 
-  public update = (): void => {
-    throw new Error(`Method not implemented`);
+  /**
+   * Updates all recently selected models with the provided definition override. Performs a parallel
+   * update with the database records.
+   *
+   * NOTICE: `id` can't be updated, so we don't need to include it here
+   * NOTICE: updates don't clear the lastQuery results as these methods could be chained for
+   * multiple update purposes and eventual final `getter`
+   *
+   */
+  public update = <Key extends keyof TInterfacedModel>(
+    where: keyof Pick<TInterfacedModel, Key>,
+    value: TInterfacedModel[Key]
+  ): this => {
+    const iterator = this.records.entries();
+    let result = iterator.next();
+
+    while (!result.done) {
+      const dbModel = this.records.get(result.value[0]);
+
+      if (!dbModel) {
+        // This technically should not reach the following block, because the user would need to
+        // select certain records, perform an external delete, then perform this update, which
+        // most likely be unintended anyway
+        throw new Error(`Record under ${result.value[0]} did not exist in the database`);
+      }
+
+      result.value[1][where] = value;
+
+      // Necessary cast as we are in a non-nullable context
+      dbModel[where] = value as NonNullable<TInterfacedModel>[Key];
+
+      result = iterator.next();
+    }
+
+    return this;
   };
 
   /**
