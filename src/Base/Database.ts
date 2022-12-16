@@ -93,7 +93,7 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   };
 
   /**
-   * Returns the last model from this database)
+   * Returns the last model from this database
    */
   public last = (): TModel | undefined => {
     const lastModel = this.records.get(this.autoincrement);
