@@ -51,10 +51,11 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   /**
    * Returns the first model from this database
    *
-   * When `retrieveFromLastQuery` is set to true, will return the queried models instead.
+   * When `retrieveFromLastQuery` is set to false, will return the database models instead.
    *
    * @param   {boolean}  retrieveFromLastQuery  Allows retrieving models from query scopes (Where
-   * Clause)
+   * Clause). By default, Where Clause is used, but when set to `false`, will return the record
+   * from Database.
    */
   public first = (retrieveFromLastQuery = true): TModel | undefined => {
     const firstModel = this.switchRecordsRetrieval(retrieveFromLastQuery).entries().next();
@@ -106,10 +107,11 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   /**
    * Returns the last model from this database.
    *
-   * When `retrieveFromLastQuery` is set to true, will return the queried models instead.
+   * When `retrieveFromLastQuery` is set to false, will return the database models instead.
    *
    * @param   {boolean}  retrieveFromLastQuery  Allows retrieving models from query scopes (Where
-   * Clause)
+   * Clause). By default, Where Clause is used, but when set to `false`, will return the record
+   * from Database.
    */
   public last = (retrieveFromLastQuery = true): TModel | undefined => {
     const lastModel = this.switchRecordsRetrieval(retrieveFromLastQuery).get(this.autoincrement);
