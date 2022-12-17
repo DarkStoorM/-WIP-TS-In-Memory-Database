@@ -13,7 +13,7 @@ export class BookModel extends Model<IBook> implements IBook {
   public declare read: boolean;
 
   public constructor(definition: IBook) {
-    super(definition);
+    super(definition, BooksDB);
   }
 }
 
