@@ -1,10 +1,17 @@
 import { beforeEach, expect, test } from "vitest";
 import { BookFactory } from "./Mocks/BookFactory";
-import { BooksDB } from "./Mocks/BookModel";
+import { BookModel, BooksDB } from "./Mocks/BookModel";
 
 beforeEach(() => {
   BooksDB.truncate();
 });
+
+/**
+ * Inserts and returns a book model without randomized data
+ */
+function insertBook(): BookModel {
+  return BooksDB.insert({ title: "TEST", pages: 1, read: true });
+}
 
 test("Can retrieve all models", (): void => {
   BookFactory.createMany(10);
@@ -23,11 +30,7 @@ test("Can truncate the database", (): void => {
 
 test("Can retrieve the first model from the Database", (): void => {
   // insert a dummy first
-  BooksDB.insert({
-    title: "TEST",
-    pages: 1,
-    read: true,
-  });
+  insertBook();
 
   BookFactory.asRead().createMany(5);
 
@@ -38,11 +41,7 @@ test("Can retrieve the first model from the Database", (): void => {
 
 test("Can retrieve the first model from a query scope", (): void => {
   // insert a dummy first
-  BooksDB.insert({
-    title: "TEST",
-    pages: 1,
-    read: true,
-  });
+  insertBook();
 
   BookFactory.asRead().createMany(5);
 
@@ -55,11 +54,7 @@ test("Can retrieve the last model from the Database", (): void => {
   BookFactory.asRead().createMany(5);
 
   // insert a dummy at the end
-  BooksDB.insert({
-    title: "TEST",
-    pages: 1,
-    read: true,
-  });
+  insertBook();
 
   const lastBook = BooksDB.last(false);
 
@@ -70,11 +65,7 @@ test("Can retrieve the last model from a query scope", (): void => {
   BookFactory.asRead().createMany(5);
 
   // insert a dummy at the end
-  BooksDB.insert({
-    title: "TEST",
-    pages: 1,
-    read: true,
-  });
+  insertBook();
   const lastFilteredBook = BooksDB.where("read", true).last();
 
   expect(lastFilteredBook?.title).toBe("TEST");
@@ -97,16 +88,9 @@ test("last() can return undefined from query scope and the database", (): void =
 });
 
 test("Insertion can return created model", (): void => {
-  const newModel = BooksDB.insert(
-    {
-      pages: 1,
-      read: true,
-      title: "test",
-    },
-    true
-  );
+  const newModel = insertBook();
 
-  expect(newModel?.title).toBe("test");
+  expect(newModel?.title).toBe("TEST");
 });
 
 test("Can execute getter on query scope", (): void => {
@@ -143,4 +127,32 @@ test("Can update models from query scope", (): void => {
 
   expect(book).toBeDefined();
   expect(book?.read).toBe(false);
+});
+
+test("Can search return index", (): void => {
+  const model = BookFactory.createMany(10)[0];
+
+  if (!model) {
+    throw new Error(`No models retrieved`);
+  }
+
+  const book = BooksDB.find(model.id);
+
+  expect(book).toBeDefined();
+});
+
+test("Can query by index", (): void => {
+  const models = BookFactory.createMany(10);
+
+  const lastBook = models[models.length - 1];
+
+  if (!lastBook) {
+    throw new Error(`No model retrieved from the array`);
+  }
+
+  insertBook();
+  const book = BooksDB.whereIndexed(lastBook.id + 1).first();
+
+  // Expect the retrieved book to actually have an id of the prompted value
+  expect(book?.id).toBe(lastBook.id + 1);
 });
