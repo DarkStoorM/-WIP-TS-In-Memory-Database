@@ -149,6 +149,14 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   };
 
   /**
+   * Clears this database of any existing records, including the last used query
+   */
+  public truncate = (): void => {
+    this.lastQuery.clear();
+    this.records.clear();
+  };
+
+  /**
    * Updates all recently selected models with the provided definition override. Performs a parallel
    * update with the database records.
    *
@@ -161,7 +169,7 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
     where: keyof Pick<TInterfacedModel, Key>,
     value: TInterfacedModel[Key]
   ): this => {
-    const iterator = this.records.entries();
+    const iterator = this.lastQuery.entries();
     let result = iterator.next();
 
     while (!result.done) {
