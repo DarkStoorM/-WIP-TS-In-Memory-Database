@@ -1,7 +1,7 @@
 import { Database } from "../Base/Database";
 import { Model } from "../Base/Model";
 
-interface IUser {
+export interface IUser {
   banned: boolean;
   password: string;
   username: string;
