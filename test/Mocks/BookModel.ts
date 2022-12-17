@@ -1,5 +1,5 @@
-import { Model } from "../../src/Base/Model";
 import { Database } from "../../src/Base/Database";
+import { Model } from "../../src/Base/Model";
 
 export interface IBook {
   title: string;

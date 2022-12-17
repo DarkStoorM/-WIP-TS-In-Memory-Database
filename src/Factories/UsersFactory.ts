@@ -1,6 +1,6 @@
+import { faker } from "@faker-js/faker";
 import { Factory } from "../Base/Factory";
 import { IUser, UserModel, UsersDB } from "../Models/User";
-import { faker } from "@faker-js/faker";
 
 class FactoryOfUsers extends Factory<IUser, UserModel> {
   public constructor() {

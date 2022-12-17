@@ -1,6 +1,6 @@
+import { faker } from "@faker-js/faker";
 import { BookModel, BooksDB, IBook } from "./BookModel";
 import { Factory } from "../../src/Base/Factory";
-import { faker } from "@faker-js/faker";
 
 class BooksFactory extends Factory<IBook, BookModel> {
   public constructor() {

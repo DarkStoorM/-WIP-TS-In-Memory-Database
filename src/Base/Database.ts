@@ -207,7 +207,7 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   public where = <Key extends keyof TInterfacedModel | keyof TIndexedModel>(
     /* The type intersection is required to expose the optional `id` property */
     whereColumn: keyof Pick<TInterfacedModel & TIndexedModel, Key>,
-    /* The Required<> type intersection is required to satisfy the `Key`'s constraints and to force 
+    /* The Required<> type intersection is required to satisfy the `Key`'s constraints and to force
        the actual type for that argument, since the intersected property is optional */
     value: (TInterfacedModel & Required<TIndexedModel>)[Key]
   ): this => {
@@ -234,7 +234,5 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
    * @param   {boolean}  state  `true` returns `lastQuery` (filtered models), `false` returns
    * Database records
    */
-  private switchRecordsRetrieval = (state: boolean): Map<number, TInterfacedModel> => {
-    return state ? this.lastQuery : this.records;
-  };
+  private switchRecordsRetrieval = (state: boolean): Map<number, TInterfacedModel> => state ? this.lastQuery : this.records;
 }

@@ -1,5 +1,5 @@
-import { TIndexedModel } from "../types/TIndexedModel";
 import { Database } from "./Database";
+import { TIndexedModel } from "../types/TIndexedModel";
 
 export abstract class Factory<TInterfacedModel, TModel extends TInterfacedModel & TIndexedModel> {
   private factoryStateOverrides: Partial<TInterfacedModel> = {};

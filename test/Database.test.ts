@@ -1,7 +1,6 @@
 import { beforeEach, expect, test } from "vitest";
-import { Database } from "../src/Base/Database";
 import { BookFactory } from "./Mocks/BookFactory";
-import { BookModel, BooksDB, IBook } from "./Mocks/BookModel";
+import { BooksDB } from "./Mocks/BookModel";
 
 beforeEach(() => {
   BooksDB.truncate();
