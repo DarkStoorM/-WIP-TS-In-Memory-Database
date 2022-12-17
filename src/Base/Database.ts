@@ -19,7 +19,7 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
    *
    * NOTICE: this will only be cleared when called with Get/Delete
    */
-  public lastQuery: Map<number, TInterfacedModel> = new Map();
+  private lastQuery: Map<number, TInterfacedModel> = new Map();
 
   /**
    * @param   {TDBConstructor<TInterfacedModel>}  modelDefinition   Custom Model class used as a
