@@ -4,8 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "coverage-ff": "start firefox \"%cd%\\coverage\\lcov-report\\index.html\"",
-    "coverage-chrome": "start chrome \"%cd%\\coverage\\lcov-report\\index.html\"",
+    "coverage-ff": "start firefox \"%cd%\\coverage\\index.html\"",
+    "coverage-chrome": "start chrome \"%cd%\\coverage\\index.html\"",
     "src:build:w": "tsc -b src --watch",
     "src:build": "tsc -b src",
     "src:fix": "concurrently \"npm run src:format\" \"npm run src:lint\" \"npm run src:lint-test\" \"npm run src:build\" --max-processes 1",
@@ -13,7 +13,7 @@
     "src:lint-test": "eslint --fix \"test/**\"",
     "src:lint": "eslint --fix \"src/**\"",
     "start": "node dist/index.js",
-    "test": "vitest"
+    "test": "vitest --coverage"
   },
   "repository": {
     "type": "git",
