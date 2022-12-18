@@ -14,12 +14,27 @@ class FactoryOfUsers extends Factory<IUser, UserModel> {
     );
   }
 
+  /**
+   * Create this user as Banned
+   */
   public banned(): this {
+    this.state({ banned: true });
+
+    return this;
+  }
+
+  /**
+   * Create this user as Unbanned
+   */
+  public unbanned(): this {
     this.state({ banned: false });
 
     return this;
   }
 
+  /**
+   * Create this user without a name
+   */
   public unnamed(): this {
     this.state({ username: "" });
 

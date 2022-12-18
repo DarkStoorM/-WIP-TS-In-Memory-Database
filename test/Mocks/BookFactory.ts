@@ -8,7 +8,7 @@ class BooksFactory extends Factory<IBook, BookModel> {
       (): IBook => ({
         title: `${faker.word.adjective()} ${faker.word.verb()}`,
         pages: parseInt(faker.random.numeric(), 10),
-        read: Math.random() < 0.5,
+        read: false,
       }),
       BooksDB
     );

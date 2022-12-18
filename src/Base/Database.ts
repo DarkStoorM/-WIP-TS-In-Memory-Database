@@ -7,7 +7,7 @@ import { TIndexedModel } from "../types/TIndexedModel";
  *                            Database class
  * @template TModel           Custom Model Class used for return types
  */
-export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndexedModel> {
+export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
   /**
    * Current database index.
    */
@@ -36,17 +36,23 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
     const models: TModel[] = [];
 
     // Instantiate all models from this database
-    this.records.forEach((record: TInterfacedModel): void => {
-      models.push(new this.modelDefinition(record));
+    this.records.forEach((record: TInterfacedModel, index: number): void => {
+      models.push(this.createFromTemplate(record, index));
     });
 
     return models;
   };
 
   /**
-   * Returns the current size of this database
+   * Returns the current size in records in the query scope. If `scoped` argument is set to false, will return the
+   * Database record size instead
+   *
+   * @param   {boolean} scopedSize  `true` by default, return Query Scope size. When `false` will check the size of
+   * the Database
    */
-  public count = (): number => this.records.size;
+  public count = (scopedSize = true): number => {
+    return scopedSize ? this.lastQuery.size : this.records.size;
+  };
 
   /**
    * Deletes all filtered models from the Database.
@@ -73,12 +79,27 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   };
 
   /**
-   * Returns the first model from this database
+   * Retrieves and instantiates a new model indexed by the given `id`
    *
-   * When `retrieveFromLastQuery` is set to false, will return the database models instead.
+   * @param   {number}  index  Model index in the database
+   */
+  public find = (index: number): TModel | undefined => {
+    const model = this.records.get(index);
+
+    if (!model) {
+      return undefined;
+    }
+
+    return this.createFromTemplate(model, index);
+  };
+
+  /**
+   * Returns the first model from the query scope
+   *
+   * When `retrieveFromLastQuery` is set to false, will return the first database model instead.
    *
    * @param   {boolean}  retrieveFromLastQuery  Allows retrieving models from query scopes (Where
-   * Clause). By default, Where Clause is used, but when set to `false`, will return the record
+   * Clause). By default, Where Clause is used, but when set to `false`, will return the first record
    * from Database.
    */
   public first = (retrieveFromLastQuery = true): TModel | undefined => {
@@ -89,8 +110,10 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
       return;
     }
 
+    this.lastQuery.clear();
+
     // Instantiate when available
-    return new this.modelDefinition(firstModel.value[1]);
+    return this.createFromTemplate(firstModel.value[1], firstModel.value[0]);
   };
 
   /**
@@ -101,8 +124,8 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
     const models: TModel[] = [];
 
     // Instantiate only the selected models
-    this.lastQuery.forEach((record: TInterfacedModel): void => {
-      models.push(new this.modelDefinition(record));
+    this.lastQuery.forEach((record: TInterfacedModel, index: number): void => {
+      models.push(this.createFromTemplate(record, index));
     });
 
     // Prepare the query for new results
@@ -119,22 +142,22 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
    * @param   {TInterfacedModel}  definition  Model definition later used to instantiate the new
    * model with
    */
-  public insert = (definition: TInterfacedModel, returnNew = false): TModel | void => {
-    const template = { id: this.autoincrement };
+  public insert = (definition: TInterfacedModel): TModel => {
+    ++this.autoincrement;
 
     // Insert this definition under the next database index
-    this.records.set(++this.autoincrement, definition);
+    this.records.set(this.autoincrement, definition);
 
-    return returnNew ? new this.modelDefinition(Object.assign(template, definition)) : void 0;
+    return this.createFromTemplate(definition, this.autoincrement);
   };
 
   /**
-   * Returns the last model from this database.
+   * Returns the last model from the query scope
    *
-   * When `retrieveFromLastQuery` is set to false, will return the database models instead.
+   * When `retrieveFromLastQuery` is set to false, will return the last database model instead
    *
    * @param   {boolean}  retrieveFromLastQuery  Allows retrieving models from query scopes (Where
-   * Clause). By default, Where Clause is used, but when set to `false`, will return the record
+   * Clause). By default, Where Clause is used, but when set to `false`, will return the last record
    * from Database.
    */
   public last = (retrieveFromLastQuery = true): TModel | undefined => {
@@ -145,7 +168,9 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
       return;
     }
 
-    return new this.modelDefinition(lastModel);
+    this.lastQuery.clear();
+
+    return this.createFromTemplate(lastModel, this.autoincrement);
   };
 
   /**
@@ -211,6 +236,11 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
        the actual type for that argument, since the intersected property is optional */
     value: (TInterfacedModel & Required<TIndexedModel>)[Key]
   ): this => {
+    // Switch to a separate method for an index lookup, we can just do this here and return
+    if (whereColumn === "id") {
+      return this.whereIndexed(value as number);
+    }
+
     const iterator = this.records.entries();
     let result = iterator.next();
 
@@ -229,10 +259,37 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel & TIndex
   };
 
   /**
+   * Shorthand for instantiating a new model from the supplied definition under certain `id`
+   *
+   * @param   {TInterfacedModel}  definition  Model definition fro the database to create a new instance fromm
+   * @param   {number}            id          Exact `id` from the database for this model
+   */
+  private createFromTemplate = (definition: TInterfacedModel, id: number): TModel => {
+    return new this.modelDefinition(Object.assign({ id }, definition));
+  };
+
+  /**
    * Switches the internal Map where the records should be retrieved from.
    *
    * @param   {boolean}  state  `true` returns `lastQuery` (filtered models), `false` returns
    * Database records
    */
-  private switchRecordsRetrieval = (state: boolean): Map<number, TInterfacedModel> => state ? this.lastQuery : this.records;
+  private switchRecordsRetrieval = (state: boolean): Map<number, TInterfacedModel> => {
+    return state ? this.lastQuery : this.records;
+  };
+
+  /**
+   * Stores the selected model in the last query for further processing (query scope)
+   *
+   * @param   {number}  index  Model index
+   */
+  private whereIndexed = (index: number): this => {
+    const model = this.records.get(index);
+
+    if (model) {
+      this.lastQuery.set(index, model);
+    }
+
+    return this;
+  };
 }

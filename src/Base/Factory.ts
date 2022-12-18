@@ -4,6 +4,9 @@ import { TIndexedModel } from "../types/TIndexedModel";
 export abstract class Factory<TInterfacedModel, TModel extends TInterfacedModel & TIndexedModel> {
   private factoryStateOverrides: Partial<TInterfacedModel> = {};
 
+  /**
+   * @return  {() => TInterfacedModel}  Callback returning the given model definition with fake data (when Faker is used)
+   */
   public constructor(
     private readonly modelDefinition: () => TInterfacedModel,
     private readonly databaseConnection: Database<TInterfacedModel, TModel>
@@ -17,7 +20,7 @@ export abstract class Factory<TInterfacedModel, TModel extends TInterfacedModel 
    *
    * @param   {boolean}   revertFactoryState  When set to true, will clear the factory states after generation
    */
-  public create(revertFactoryState = true): TModel | void {
+  public create(revertFactoryState = true): TModel {
     return this.databaseConnection.insert(this.getModelFactoryDefinition(revertFactoryState));
   }
 
@@ -27,8 +30,8 @@ export abstract class Factory<TInterfacedModel, TModel extends TInterfacedModel 
    *
    * @param   {number}  amount  Amount of model definitions to create
    */
-  public createMany(amount: number): (TModel | void)[] {
-    const definitions = Array.from(Array(amount), (): TModel | void => this.create(false));
+  public createMany(amount: number): TModel[] {
+    const definitions = Array.from(Array(amount), (): TModel => this.create(false));
 
     this.revertFactoryState(true);
 
