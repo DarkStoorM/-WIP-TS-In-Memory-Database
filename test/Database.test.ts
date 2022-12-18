@@ -13,6 +13,20 @@ function insertBook(): BookModel {
   return BooksDB.insert({ title: "TEST", pages: 1, read: true });
 }
 
+test("Can check sizes both of query scopes and the database", (): void => {
+  // This will need two separate sets of models to properly check this.
+  BookFactory.asRead().createMany(5);
+  BookFactory.asUnread().createMany(5);
+
+  // The total size should be 10, but scoped size should be 5 as we only have
+  // 5 `read` books in the scope
+  const sizeTotal = BooksDB.count(false);
+  const sizeScoped = BooksDB.where("read", true).count();
+
+  expect(sizeTotal).toBe(10);
+  expect(sizeScoped).toBe(5);
+});
+
 test("Can retrieve all models", (): void => {
   BookFactory.createMany(10);
 
@@ -109,7 +123,7 @@ test("Can delete queried models", (): void => {
   // books left
   BooksDB.where("read", false).delete();
 
-  expect(BooksDB.count()).toBe(5);
+  expect(BooksDB.count(false)).toBe(5);
 });
 
 test("Can still execute Delete on empty query scope", (): void => {

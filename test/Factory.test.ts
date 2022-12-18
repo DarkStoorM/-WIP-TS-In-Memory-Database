@@ -10,14 +10,14 @@ test("Can create a model", (): void => {
   const book = BookFactory.create(false);
 
   expect(book).toBeDefined();
-  expect(BooksDB.count()).toBe(1);
+  expect(BooksDB.count(false)).toBe(1);
 });
 
 test("Can create many models", (): void => {
   const books = BookFactory.createMany(5);
 
   expect(books.length).toBeGreaterThan(0);
-  expect(BooksDB.count()).toBe(5);
+  expect(BooksDB.count(false)).toBe(5);
 });
 
 test("Can make a model definition", (): void => {
