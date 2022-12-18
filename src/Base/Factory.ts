@@ -4,6 +4,9 @@ import { TIndexedModel } from "../types/TIndexedModel";
 export abstract class Factory<TInterfacedModel, TModel extends TInterfacedModel & TIndexedModel> {
   private factoryStateOverrides: Partial<TInterfacedModel> = {};
 
+  /**
+   * @return  {() => TInterfacedModel}  Callback returning the given model definition with fake data (when Faker is used)
+   */
   public constructor(
     private readonly modelDefinition: () => TInterfacedModel,
     private readonly databaseConnection: Database<TInterfacedModel, TModel>
