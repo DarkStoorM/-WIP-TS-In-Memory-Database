@@ -151,7 +151,7 @@ test("Can query by index", (): void => {
   }
 
   insertBook();
-  const book = BooksDB.whereIndexed(lastBook.id + 1).first();
+  const book = BooksDB.where("id", lastBook.id + 1).first();
 
   // Expect the retrieved book to actually have an id of the prompted value
   expect(book?.id).toBe(lastBook.id + 1);
