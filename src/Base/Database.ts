@@ -44,9 +44,15 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
   };
 
   /**
-   * Returns the current size of this database
+   * Returns the current size in records in the query scope. If `scoped` argument is set to false, will return the
+   * Database record size instead
+   *
+   * @param   {boolean} scopedSize  `true` by default, return Query Scope size. When `false` will check the size of
+   * the Database
    */
-  public count = (): number => this.records.size;
+  public count = (scopedSize = true): number => {
+    return scopedSize ? this.lastQuery.size : this.records.size;
+  };
 
   /**
    * Deletes all filtered models from the Database.
