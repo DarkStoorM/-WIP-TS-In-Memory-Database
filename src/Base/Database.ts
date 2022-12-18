@@ -88,12 +88,12 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
   };
 
   /**
-   * Returns the first model from this database
+   * Returns the first model from the query scope
    *
-   * When `retrieveFromLastQuery` is set to false, will return the database models instead.
+   * When `retrieveFromLastQuery` is set to false, will return the first database model instead.
    *
    * @param   {boolean}  retrieveFromLastQuery  Allows retrieving models from query scopes (Where
-   * Clause). By default, Where Clause is used, but when set to `false`, will return the record
+   * Clause). By default, Where Clause is used, but when set to `false`, will return the first record
    * from Database.
    */
   public first = (retrieveFromLastQuery = true): TModel | undefined => {
@@ -146,12 +146,12 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
   };
 
   /**
-   * Returns the last model from this database.
+   * Returns the last model from the query scope
    *
-   * When `retrieveFromLastQuery` is set to false, will return the database models instead.
+   * When `retrieveFromLastQuery` is set to false, will return the last database model instead
    *
    * @param   {boolean}  retrieveFromLastQuery  Allows retrieving models from query scopes (Where
-   * Clause). By default, Where Clause is used, but when set to `false`, will return the record
+   * Clause). By default, Where Clause is used, but when set to `false`, will return the last record
    * from Database.
    */
   public last = (retrieveFromLastQuery = true): TModel | undefined => {
@@ -252,10 +252,14 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
     return this;
   };
 
+  /**
+   * Shorthand for instantiating a new model from the supplied definition under certain `id`
+   *
+   * @param   {TInterfacedModel}  definition  Model definition fro the database to create a new instance fromm
+   * @param   {number}            id          Exact `id` from the database for this model
+   */
   private createFromTemplate = (definition: TInterfacedModel, id: number): TModel => {
-    const template = { id };
-
-    return new this.modelDefinition(Object.assign(template, definition));
+    return new this.modelDefinition(Object.assign({ id }, definition));
   };
 
   /**
@@ -264,11 +268,12 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
    * @param   {boolean}  state  `true` returns `lastQuery` (filtered models), `false` returns
    * Database records
    */
-  private switchRecordsRetrieval = (state: boolean): Map<number, TInterfacedModel> =>
-    state ? this.lastQuery : this.records;
+  private switchRecordsRetrieval = (state: boolean): Map<number, TInterfacedModel> => {
+    return state ? this.lastQuery : this.records;
+  };
 
   /**
-   * Stores the selected model in the last query for further processing
+   * Stores the selected model in the last query for further processing (query scope)
    *
    * @param   {number}  index  Model index
    */
