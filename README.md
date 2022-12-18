@@ -9,6 +9,7 @@ Table of Contents:
 - [In-Memory Database with TypeScript](#in-memory-database-with-typescript)
   - [Database Structure](#database-structure)
     - [`First()`, `Last()`](#first-last)
+      - [Notice on count()](#notice-on-count)
   - [Model Updates](#model-updates)
     - [Updating from the Model context](#updating-from-the-model-context)
     - [Updating from the Database context](#updating-from-the-database-context)
@@ -86,6 +87,36 @@ const firstDB = UsersDB.first(false);
 // false
 console.log(firstBanned?.banned, firstDB?.banned);
 ```
+
+#### Notice on count()
+
+Since this database does not implement separate Query Builders, the `count` had to be implemented with a `boolean` switch to check the size of either the Database or the scoped query.
+
+```ts
+// This will access the Database size
+UsersDB.count(false);
+// This will not work, because, by default, the counter returns the size of a
+// query scope, which at the moment is empty
+UsersDB.count();
+
+// This will access the query scope size
+UsersDB.where("banned", true).count();
+```
+
+- `count(false)` - The provided argument will switch the context
+- `count()` - Missing argument will default to the query scope
+
+However, the arg-less `count()` can still work when executed in the following way:
+
+```ts
+const query UsersDB.where("banned", true);
+
+UsersDB.count();
+```
+
+Although, we did not provide any arguments, the `count()` will still return the size of the scoped query even when called on `UsersDB`, because there are no separate collections to access the query scope or the Database.
+
+The Query Scope stores selected models filtered by `where` clause and both `Maps` (scoped and Database) are typed with the same signature. To make the `count()` work properly, a Query Builder would need to be implemented, which has been omitted in this project.
 
 ---
 
@@ -256,7 +287,7 @@ UsersFactory.banned().createMany(5);
 UsersDB.where("banned", true).delete();
 
 // 0
-console.log(UsersDB.count());
+console.log(UsersDB.count(false));
 ```
 
 First method performs a delete on the instantiated model, which will completely flush the object along with deleting the associated model definition in the database.
