@@ -104,6 +104,8 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
       return;
     }
 
+    this.lastQuery.clear();
+
     // Instantiate when available
     return this.createFromTemplate(firstModel.value[1], firstModel.value[0]);
   };
@@ -125,11 +127,7 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
 
     return models;
   };
-  private createFromTemplate = (definition: TInterfacedModel, id: number): TModel => {
-    const template = { id };
 
-    return new this.modelDefinition(Object.assign(template, definition));
-  };
   /**
    * Inserts the given model definition into the database and returns a new instance of this model
    * based on the
@@ -163,6 +161,8 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
     if (!lastModel) {
       return;
     }
+
+    this.lastQuery.clear();
 
     return this.createFromTemplate(lastModel, this.autoincrement);
   };
@@ -230,6 +230,11 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
        the actual type for that argument, since the intersected property is optional */
     value: (TInterfacedModel & Required<TIndexedModel>)[Key]
   ): this => {
+    // Switch to a separate method for an index lookup, we can just do this here and return
+    if (whereColumn === "id") {
+      return this.whereIndexed(value as number);
+    }
+
     const iterator = this.records.entries();
     let result = iterator.next();
 
@@ -247,19 +252,10 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
     return this;
   };
 
-  /**
-   * Stores the selected model in the last query for further processing
-   *
-   * @param   {number}  index  Model index
-   */
-  public whereIndexed = (index: number): this => {
-    const model = this.records.get(index);
+  private createFromTemplate = (definition: TInterfacedModel, id: number): TModel => {
+    const template = { id };
 
-    if (model) {
-      this.lastQuery.set(index, model);
-    }
-
-    return this;
+    return new this.modelDefinition(Object.assign(template, definition));
   };
 
   /**
@@ -270,4 +266,19 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
    */
   private switchRecordsRetrieval = (state: boolean): Map<number, TInterfacedModel> =>
     state ? this.lastQuery : this.records;
+
+  /**
+   * Stores the selected model in the last query for further processing
+   *
+   * @param   {number}  index  Model index
+   */
+  private whereIndexed = (index: number): this => {
+    const model = this.records.get(index);
+
+    if (model) {
+      this.lastQuery.set(index, model);
+    }
+
+    return this;
+  };
 }
