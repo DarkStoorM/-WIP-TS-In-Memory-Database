@@ -267,6 +267,8 @@ The second method will delete all selected model definitions.
 
 ## Conclusion
 
-There was not much though put into this, the Database does not implement a proper Builder pattern and listeners, methods don't really represent the behavior from regular database drivers, but it was a fun project to play around with.
+There was not much thought put into this, the Database does not implement a proper Builder pattern and listeners, methods don't really represent the behavior from regular database drivers, but it was a fun project to play around with.
+
+Also, unfortunately, Accessors and Mutators will not work.
 
 Sorting was not implemented, because ¯\\\_(ツ)\_/¯.
