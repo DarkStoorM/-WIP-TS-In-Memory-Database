@@ -50,9 +50,7 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
    * @param   {boolean} scopedSize  `true` by default, return Query Scope size. When `false` will check the size of
    * the Database
    */
-  public count = (scopedSize = true): number => {
-    return scopedSize ? this.lastQuery.size : this.records.size;
-  };
+  public count = (scopedSize = true): number => scopedSize ? this.lastQuery.size : this.records.size;
 
   /**
    * Deletes all filtered models from the Database.
@@ -264,9 +262,7 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
    * @param   {TInterfacedModel}  definition  Model definition fro the database to create a new instance fromm
    * @param   {number}            id          Exact `id` from the database for this model
    */
-  private createFromTemplate = (definition: TInterfacedModel, id: number): TModel => {
-    return new this.modelDefinition(Object.assign({ id }, definition));
-  };
+  private createFromTemplate = (definition: TInterfacedModel, id: number): TModel => new this.modelDefinition(Object.assign({ id }, definition));
 
   /**
    * Switches the internal Map where the records should be retrieved from.
@@ -274,9 +270,7 @@ export class Database<TInterfacedModel, TModel extends TInterfacedModel> {
    * @param   {boolean}  state  `true` returns `lastQuery` (filtered models), `false` returns
    * Database records
    */
-  private switchRecordsRetrieval = (state: boolean): Map<number, TInterfacedModel> => {
-    return state ? this.lastQuery : this.records;
-  };
+  private switchRecordsRetrieval = (state: boolean): Map<number, TInterfacedModel> => state ? this.lastQuery : this.records;
 
   /**
    * Stores the selected model in the last query for further processing (query scope)
